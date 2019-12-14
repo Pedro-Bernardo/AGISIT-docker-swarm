@@ -1,0 +1,12 @@
+- hosts: swarm-workers 
+  gather_facts: no
+  become: yes
+  become_method: sudo
+  remote_user: vagrant
+
+  tasks:
+    - name: install ssh key
+      authorized_key:
+        user: vagrant
+        key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+        state: present

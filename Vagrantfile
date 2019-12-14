@@ -36,7 +36,7 @@ Vagrant.configure("2") do |config|
       end
 
       node.vm.provision "shell", inline: "docker swarm init --advertise-addr #{manager_ip}"
-      node.vm.provision "shell", inline: "docker swarm join-token -q worker > /vagrant/token"
+      node.vm.provision "shell", inline: "docker swarm join-token -q worker > /vagrant/shared/token"
     end
 
   (1..numworkers).each do |n|
