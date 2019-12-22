@@ -21,11 +21,7 @@ sudo apt-add-repository -y ppa:ansible/ansible
 sudo apt-get update
 sudo apt-get -y install ansible
 
-# configure hosts file for the internal network defined by Vagrantfile
-cat >> /etc/hosts <<EOL
 
-# vagrant environment nodes
-192.168.56.2   manager
-192.168.56.3   worker1
-192.168.56.4   worker2
-EOL
+#gluster clients
+sudo apt-get install -y glusterfs-client
+sudo mkdir -p /mnt/sharedfs
