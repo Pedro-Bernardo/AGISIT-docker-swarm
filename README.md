@@ -3,7 +3,7 @@ Docker Swarm
 
 
 ## This was in the Vagrantfile but needs to be modified and moved:
-
+(REVIEW THIS)
 ### command to join the swarm with a token saved in '/vagrant/token'. This will be done through ansible and there will be no token file
 The ansible playbook will be present in the shared folder
 
@@ -31,7 +31,7 @@ ssh-keygen -t rsa -b 2048
 
 Scan the workers public key:
 ```
-ssh-keyscan worker1 worker2>> ~/.ssh/known_hosts
+ssh-keyscan manager worker1 worker2 gluster1 gluster2 >> ~/.ssh/known_hosts
 ```
 
 Play the `ssh-addkey.yml` playbook:
@@ -44,16 +44,6 @@ Verify the connectivity:
 ansible all -m ping
 ```
 
-Finally, add the worker nodes to the docker swarm:
-```
-ansible-playbook add-workers.yml
-```
-
-Verify that the workers were added to the swarm:
-```
-docker node ls
-```
-
 
 ## Setup shared filesystem
 
@@ -61,7 +51,7 @@ Right now we have 2 gluster nodes for swarm usage
  - gluster1
  - gluster2
 
-Let's create our trusted storage pool
+Let's create our trusted storage pool (toJorge - We don't need this)
 
 ```
 vagrant ssh gluster1
@@ -85,13 +75,13 @@ gluster peer status
 vagrant ssh manager
 ```
 
-Having already generated the ssh-key, we need to scan the gluster nodes public key:
+Having already generated the ssh-key, we need to scan the gluster nodes public key (toJorge - supposedly done before)
 
 ```
 ssh-keyscan gluster1 gluster2 >> ~/.ssh/known_hosts
 ```
 
-Play the `ssh-addkey.yml` playbook:
+Play the `ssh-addkey.yml` playbook (toJorge - supposedly done before):
 ```
 ansible-playbook ssh-addkey.yml --ask-pass
 ```
@@ -123,4 +113,3 @@ cd /gluster/volume
 vagrant ssh gluster2
 cd /gluster/volume
 ```
-
