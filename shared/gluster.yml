@@ -1,0 +1,25 @@
+- hosts: glusters
+  gather_facts: yes
+  become: yes
+  become_method: sudo
+  remote_user: vagrant
+
+  tasks:
+
+    - name: create gluster volume
+      gluster_volume:
+        state: present
+        name: test2
+        bricks: /gluster/volume
+        replicas: 2
+        cluster:
+          - 192.168.56.81
+          - 192.168.56.82
+
+    - name: start gluster volume
+      gluster_volume:
+        state: started
+        name: test2
+
+
+
