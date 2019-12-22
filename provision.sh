@@ -11,17 +11,8 @@ sudo usermod -aG docker vagrant
 sudo service docker start
 docker version
 
-# install docker sdk for python
-sudo apt-get install python-pip -y
-sudo python -m pip install docker
-
 # install ansible (http://docs.ansible.com/intro_installation.html)
 sudo apt-get -y install software-properties-common
 sudo apt-add-repository -y ppa:ansible/ansible
 sudo apt-get update
 sudo apt-get -y install ansible
-
-
-#gluster clients
-sudo apt-get install -y glusterfs-client
-sudo mkdir -p /mnt/sharedfs

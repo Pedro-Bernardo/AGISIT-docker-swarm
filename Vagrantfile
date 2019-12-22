@@ -38,51 +38,52 @@ File.open("./hosts", 'w') { |file|
 }
 
 Vagrant.configure("2") do |config|
-    config.vm.provider "virtualbox" do |v|
-     	v.memory = vmmemory
-  	v.cpus = numcpu
+    config.vm.provider "virtualbox" do |vb|
+     	vb.memory = vmmemory
+  	  vb.cpus = numcpu
     end
 
     config.vm.define "manager" do |node|
       node.vm.box = "ubuntu/trusty64"
       node.vm.hostname = "manager"
       node.vm.network "private_network", ip: "#{manager_ip}"
+      node.vm.synced_folder "shared", "/home/vagrant/shared"
 
       # /etc/hosts update
       node.vm.provision "file", source: "hosts", destination: "/tmp/hosts"
       node.vm.provision "shell", inline: "cat /tmp/hosts >> /etc/hosts", privileged: true
             
+      # Auto Start Swarm
       node.vm.provision "shell", path: "./provision.sh"
-
-      config.vm.synced_folder "shared", "/home/vagrant/shared"
-     
       node.vm.provision "shell", inline: "docker swarm init --advertise-addr #{manager_ip}"
-      node.vm.provision "shell", inline: "docker swarm join-token -q worker > /vagrant/shared/token"
+      node.vm.provision "shell", inline: "docker swarm join-token -q worker > /vagrant/token"
     end
 
-  (1..numworkers).each do |n|
-    config.vm.define "worker#{n}" do |node|
+  workers.each do |worker|
+    config.vm.define worker[:name] do |node|
       node.vm.box = "ubuntu/trusty64"
-      node.vm.hostname = "worker#{n}"
-      node.vm.network "private_network", ip: "192.168.56.#{n+2}"
+      node.vm.hostname = worker[:name]
+      node.vm.network "private_network", ip: worker[:ip]
       
       # /etc/hosts update
       node.vm.provision "file", source: "hosts", destination: "/tmp/hosts"
       node.vm.provision "shell", inline: "cat /tmp/hosts >> /etc/hosts", privileged: true
        
+      # Auto Start Swarm
       node.vm.provision "shell", path: "./provision.sh"
+      node.vm.provision "shell", inline: "docker swarm join --advertise-addr #{worker[:ip]} --listen-addr #{worker[:ip]}:2377 --token `cat /vagrant/token` #{manager_ip}:2377"
     end
   end
 
-  (1..numstorenodes).each do |n|
-    config.vm.define "gluster#{n}" do |node|
+  storenodes.each do |gluster|
+    config.vm.define gluster[:name] do |node|
       node.vm.box = "ubuntu/trusty64"
-      node.vm.hostname = "gluster#{n}"
-      node.vm.network "private_network", ip: "192.168.56.#{80+n}"
+      node.vm.hostname = gluster[:name]
+      node.vm.network "private_network", ip: gluster[:ip]
+      #
       # /etc/hosts update
       node.vm.provision "file", source: "hosts", destination: "/tmp/hosts"
       node.vm.provision "shell", inline: "cat /tmp/hosts >> /etc/hosts", privileged: true
-      node.vm.provision "shell", path: "./gluster-servers-provision.sh"
     end
   end
 end
