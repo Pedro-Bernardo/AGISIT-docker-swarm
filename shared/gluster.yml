@@ -1,11 +1,13 @@
-#TODO add variable for volume
-
 # This Play Configures GlusterFS Servers
 - hosts: glusterfs
   gather_facts: no
   become: yes
   become_method: sudo
   remote_user: vagrant
+
+  vars:
+    vol_name: test2
+    brick_name: /gluster/volume
 
   tasks:
     - name: Install GlusterFS
@@ -16,15 +18,15 @@
 
     - name: Create a Volume
       file:
-        path: /gluster/volume
+        path: "{{ brick_name }}" 
         state: directory
-        mode: '0755'
+        mode: '0770'
 
     - name: Add Gluster Volume
       gluster_volume:
-        name: test2
+        name: "{{ vol_name }}"
         state: present
-        bricks: /gluster/volume
+        bricks: "{{ brick_name }}"
         replicas: 2
         cluster:
           - gluster1
@@ -33,7 +35,7 @@
 
     - name: Start Gluster Volume
       gluster_volume:
-        name: test2
+        name: "{{ vol_name }}"
         state: started
 
 # This Play Configures GlusterFS Clients
@@ -43,6 +45,10 @@
   become_method: sudo
   remote_user: vagrant
 
+  vars:
+    src: gluster1:/test2
+    sharedfs: /mnt/sharedfs
+
   tasks:
     - name: Install GlusterFS-Client
       apt:
@@ -50,15 +56,18 @@
         state: present
         update_cache: yes
 
-    - name: Create sharedfs dir
+    - name: Create the shared filesystem dir
       file:
-        path: /mnt/sharedfs
+        path: "{{ sharedfs }}"
         state: directory
-        mode: '0755'
+        owner: vagrant
+        group: vagrant
+        mode: '0770'
 
     - name: Mount the shared filesystem
       mount:
-        name: test2
-        src: gluster1:/test2
-        fstype: glusterfs
+        src: "{{ src }}"
+        path: "{{ sharedfs }}"
         state: mounted
+        fstype: glusterfs
+        opts: defaults,_netdev
