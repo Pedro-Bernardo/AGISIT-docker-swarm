@@ -1,25 +1,55 @@
-- hosts: glusters
-  gather_facts: yes
+# This Play Configures GlusterFS Servers
+- hosts: glusterfs
+  gather_facts: no
   become: yes
   become_method: sudo
   remote_user: vagrant
 
   tasks:
-
-    - name: create gluster volume
-      gluster_volume:
+    - name: Install GlusterFS
+      apt:
+        pkg: glusterfs-server
         state: present
+        update_cache: yes
+
+    - name: Create a Volume
+      file:
+        path: /gluster/volume
+        state: directory
+        mode: '0755'
+
+    - name: Add Gluster Volume
+      gluster_volume:
         name: test2
+        state: present
         bricks: /gluster/volume
         replicas: 2
         cluster:
-          - 192.168.56.81
-          - 192.168.56.82
+          - gluster1
+          - gluster2
+      run_once: true
 
-    - name: start gluster volume
+    - name: Start Gluster Volume
       gluster_volume:
-        state: started
         name: test2
+        state: started
 
+# This Play Configures GlusterFS Clients
+- hosts: swarm
+  gather_facts: no
+  become: yes
+  become_method: sudo
+  remote_user: vagrant
 
+  tasks:
+    - name: Install GlusterFS-Client
+      apt:
+        pkg: glusterfs-client
+        state: present
+        update_cache: yes
 
+    - name: Create sharedfs dir
+      file:
+        path: /mnt/sharedfs
+        state: directory
+        mode: '0755'
