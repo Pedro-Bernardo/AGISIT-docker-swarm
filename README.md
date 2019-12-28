@@ -44,6 +44,24 @@ Verify the connectivity:
 ansible all -m ping
 ```
 
+### Setup container and launch service 
+
+Build the container in all of the swarm nodes
+```
+ansible-playbook build_webserver_image.yml --ask-pass
+```
+
+Launch the service with only 1 replica.   
+- /mnt/sharedfs is the location of the glusterfs mountpoint
+- web_container is the name of the custom container (apache + php)
+```
+docker service create --name web --replicas 1 --publish 8080:80 --mount type=bind,source=/mnt/sharedfs,target=/storage --env UPLOAD_DIR=/storage/ web_container
+```
+
+Replicate the service:
+```
+docker service scale web=3
+```
 
 ## Setup shared filesystem
 
@@ -113,3 +131,4 @@ cd /gluster/volume
 vagrant ssh gluster2
 cd /gluster/volume
 ```
+

@@ -64,6 +64,7 @@ Vagrant.configure("2") do |config|
       node.vm.box = "ubuntu/trusty64"
       node.vm.hostname = worker[:name]
       node.vm.network "private_network", ip: worker[:ip]
+      node.vm.synced_folder "shared", "/home/vagrant/shared"
       
       # /etc/hosts update
       node.vm.provision "file", source: "hosts", destination: "/tmp/hosts"

@@ -62,7 +62,7 @@
         state: directory
         owner: vagrant
         group: vagrant
-        mode: '0770'
+        mode: '0777'
 
     - name: Mount the shared filesystem
       mount:
@@ -71,3 +71,11 @@
         state: mounted
         fstype: glusterfs
         opts: defaults,_netdev
+
+    - name: Change ownership of directory
+      file:
+        path: "{{ sharedfs }}"
+        state: directory
+        owner: vagrant
+        group: vagrant
+        mode: '1777'

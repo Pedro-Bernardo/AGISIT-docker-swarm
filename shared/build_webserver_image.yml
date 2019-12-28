@@ -1,0 +1,9 @@
+- hosts: swarm
+  gather_facts: no
+  become: yes
+  become_method: sudo
+  remote_user: vagrant
+
+  tasks:
+    - name: build the image
+      command: docker build --build-arg host_name='{{inventory_hostname}}' -t web_container /home/vagrant/shared/container
