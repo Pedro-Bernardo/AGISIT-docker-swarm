@@ -16,13 +16,13 @@
         state: present
         update_cache: yes
 
-    - name: Create a Volume
+    - name: Create a Brick
       file:
         path: "{{ brick_name }}" 
         state: directory
         mode: '0770'
 
-    - name: Add Gluster Volume
+    - name: Create a Volume
       gluster_volume:
         name: "{{ vol_name }}"
         state: present
